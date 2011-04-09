@@ -1,0 +1,10 @@
+## Charity Navigator Scraper
+
+### Dependencies
+Built using Python 2.7 and Scrapy.
+
+### Description
+This script will download the list of Charity Navigator rated charities using the Search API. The charity pages will then be scraped for specific financial ratings. The script could be extended to scrape more, or all, of the information available on each charity's page.
+
+### TODOs
+Tasks can be found in the scraper.org source file.
