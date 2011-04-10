@@ -1,0 +1,32 @@
+#+TITLE:     Charity Navigator Web Data Scraper
+#+AUTHOR:    Jeffrey Horn
+#+EMAIL:     jrhorn424@gmail.com
+#+DATE:      2011-04-09 Sat
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT:
+
+* Resources
+- [[http://doc.scrapy.org/][Scrapy]]
+- [[file:search-api.pdf][Charity Navigator Search API]]
+* Overview
+- Download first results page for all charities
+  - Store maximum number of records in a variable
+  - Determine how many queries to run based on this number (results
+    returned 25 at a time)
+- Download results in sets of 25, writing each XML stream to disk
+- Combine streams into single dataset with one record per row. XML
+  returns dictionary style, so keys can be column headers
+- Download each charity's ratings page using the unique org id already
+  stored in the dataset
+- Search and parse these pages for the financial rating score of
+  interest and store as a new column
+* Script
