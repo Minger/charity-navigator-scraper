@@ -17,6 +17,7 @@
 * Resources
 - [[http://doc.scrapy.org/][Scrapy]]
 - [[file:search-api.pdf][Charity Navigator Search API]]
+- [[http://www.w3.org/TR/xpath/][Xpath Doc]]
 * Overview
 - Download first results page for all charities
   - Store maximum number of records in a variable
