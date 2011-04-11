@@ -14,7 +14,6 @@
 #+LINK_HOME: 
 #+XSLT:
 * Charity Navigator Scraper
-- This project *[[http://www.charitynavigator.org/][Powered by Charity Navigator]]*.
 - Read about the [[http://www.charitynavigator.org/index.cfm?bay=content.view&cpid=809][Charity Navigator Search API]] and learn how to apply
   for access. You will need your own API key to use this script.
 - Charity Navigator is not associated with this project or its authors
@@ -45,3 +44,5 @@ does not offer backend access to charity data. Access to these data
 are important for statistical analysis. The scraper locates and stores
 these data in a human- and machine-readable form to facilitate this
 analysis. 
+
+This project *[[http://www.charitynavigator.org/][Powered by Charity Navigator]]*.
