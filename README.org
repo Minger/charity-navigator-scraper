@@ -20,7 +20,7 @@
   in any way.
 - Charity Navigator makes this data available as a public
   service. Please do not abuse their servers.
-* Description
+* What Is It?
 This script uses the Search API to request an XML stream of all
 charities for which Charity Navigator (CN) provides data. These
 streams are returned with 25 records per call, so the maximum number
@@ -33,7 +33,7 @@ CN URL for each charity is used to load that charity's summary in
 memory, and the parsed HTML is used to store more data about each
 charity. The script could be extended to scrape all of the
 information available on each charity's page.
-* Dependencies
+* What's Required?
 - Python 2.6.5 or later
 - urllib2 and csv standard modules
 - [[http://www.lxml.de][lxml]]
