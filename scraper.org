@@ -118,7 +118,7 @@ iterchildren() and some magic to create a dictionary from the XML.
 ** Download Each Charity's Fundraising Efficiency
 #+begin_src python
   for charity in results:
-      print "Downloading efficiency for organization " + charity['orgid']
+      print "Downloading efficiency for organization " + charity['orgid'] + " (%d out of %d)" % (charity+1,len(results))
       doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600))
       for element in doc.xpath('//div/table/tr/td/a'):
           if element.text=='Fundraising Efficiency':
