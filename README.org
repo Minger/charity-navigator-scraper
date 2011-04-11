@@ -1,0 +1,23 @@
+#+TITLE:     Charity Navigator Scraper
+#+AUTHOR:    Jeffrey Horn
+#+EMAIL:     jrhorn424@gmail.com
+#+DATE:      2011-04-11 Mon
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT:
+
+* Dependencies
+* Why a Scraper?
+* Description
+This script will download the list of Charity Navigator rated
+charities using the Search API. The charity pages will then be scraped
+for specific financial ratings. The script could be extended to scrape
+more, or all, of the information available on each charity's page.
