@@ -56,7 +56,7 @@ will be stored in variables. This gives me an excuse to use string
 formatting (I'm easily amused) and makes the code prettier (I'm easily
 distracted).
 #+begin_src python
-  appid = 99487923783
+  appid = input('Please enter your API key or app ID:')
   rec = 1
 #+end_src
 ** Determine Maximum Records

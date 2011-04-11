@@ -4,7 +4,7 @@ import lxml.etree
 import lxml.html
 import csv
 
-appid = 99487923783
+appid = input('Please enter your API key or app ID:')
 rec = 1
 
 data = urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec))
@@ -30,7 +30,7 @@ for rec in range(1, maxrec, 25):
     data.close()
 
 for charity in results:
-    print "Downloading efficiency for organization " + charity['orgid']
+    print "Downloading efficiency for organization " + charity['orgid'] + " (%d out of %d)" % (charity+1,len(results))
     doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600))
     for element in doc.xpath('//div/table/tr/td/a'):
         if element.text=='Fundraising Efficiency':
