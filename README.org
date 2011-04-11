@@ -13,11 +13,18 @@
 #+LINK_UP:   
 #+LINK_HOME: 
 #+XSLT:
+* Charity Navigator Scraper
 
-* Dependencies
-* Why a Scraper?
 * Description
 This script will download the list of Charity Navigator rated
 charities using the Search API. The charity pages will then be scraped
 for specific financial ratings. The script could be extended to scrape
 more, or all, of the information available on each charity's page.
+
+* Dependencies
+* Why a Scraper?
+* Credit
+#+begin_src html
+  <a href="http://www.charitynavigator.org"><img src="http://www.charitynavigator.org/_gfx_/partners/poweredbycn180x40.gif" alt="Powered by Charity Navigator" width="180" height="40"></a>
+#+end_src
+
