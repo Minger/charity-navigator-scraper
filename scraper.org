@@ -20,30 +20,22 @@
 :PROPERTIES:
 :ID: 0622F934-94E2-41C0-8605-0FA670CF16A0
 :END:
-- [[http://doc.scrapy.org/][Scrapy]]
-- [[file:search-api.pdf][Charity Navigator Search API]]
-- [[http://www.w3.org/TR/xpath/][Xpath Doc]]
+- [[file:search-api.pdf][Charity Navigator Search API (local only)]]
 - [[http://lxml.de][lxml]]
-  - [[http://lxml.de/FAQ.html#how-can-i-map-an-xml-tree-into-a-dict-of-dicts][Mapping XML into Dicts (not used)]]
   - [[http://paste.pound-python.org/show/5082/][Scraper-Specific Mapping Code (courtesy bob2 in #python)]]
   - [[http://infohost.nmt.edu/tcc/help/pubs/pylxml/pylxml.pdf][Handy lxml overview]]
-- [[http://docs.tablib.org/en/latest/index.html][tablib]]
-* Overview
-- [2/2] Download first results page for all charities
-  - [X] Store maximum number of records in a variable
-  - [X] Determine how many queries to run based on this number (results
-    returned 25 at a time)
-- [X] Download results in sets of 25, writing each XML stream to disk
-- [X] Combine streams into single dataset with one record per row. XML
-  returns dictionary style, so keys can be column headers
-- [X] Download each charity's ratings page using the unique org id already
-  stored in the dataset
-- [X] Search and parse these pages for the financial rating score of
-  interest and store as a new column
+- [[http://www.w3.org/TR/xpath/][Xpath Doc]]
+* Tasks
+** TODO Add other data from charity [[http://www.charitynavigator.org/index.cfm?bay=search.summary&orgid=12123][summary pages]]
+** TODO Look into cookie handling to log in and collect historical data
+** TODO Add arguments to script to turn on verbosity (print lines in each loop) and persistence (saving the XML/HTML docs to disk)
+** TODO Work on error handling
+** TODO Figure out a better way to do CSV header row
 * Script
 ** Setup
-We'll use [[http://www.crummy.com/software/BeautifulSoup/documentation.html][BeautifulSoup]] to navigate the document and [[http://personalpages.tds.net/~kent37/kk/00010.html][urllib2]] to fetch
-the XML feed pages.
+We'll use [[http://www.lxml.de][lxml]] to navigate both the XML and HTML documents and [[http://personalpages.tds.net/~kent37/kk/00010.html][urllib2]]
+to fetch them. The [[http://docs.python.org/library/csv.html][csv]] module is used to store the generated Python
+dictionary in human- and machine-readable form.
 #+begin_src python
   import urllib2
   import lxml.etree
@@ -60,84 +52,81 @@ distracted).
   rec = 1
 #+end_src
 ** Determine Maximum Records
-This needs to be automated. Try downloading the XML feed and using
-Xpath/BeautifulSoup to assign the maximum records to a variable to use
-later.
+We use lxml to find the total number of records for our query. This is
+automated since the number of records might change at any moment, but
+it is also very fragile! If Charity Navigator changes the way it
+returns results, this will break. 
 #+begin_src python
   data = urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec))
   doc = lxml.etree.parse(data)
   data.close()
-#+end_src
 
-Closing the page is best practice. Since BS returns unicode
-characters, we have to wrap everything in int() to convert the string
-to an integer. The path selectors look into the "resultset" tag (the
-root of Charity Nav query results), and this code is fragile. Check
-here for errors if CN changes the way they return results. The number
-of the last record is stored conveniently in the "total" attribute of
-the resultset tag.
-#+begin_src python
   maxrec = int(doc.getroot().get('total'))
 #+end_src
 
-We want to download each result set up to the one containing the
-maximum number. Since we have to download each page and load it into
-memory to create the dictionary, the download "persistence" code is
-moved into the next section.
-*************** Alternate Iteration I                :noexport:
-So that number divided by 25 will give us the number of sets to
-iterate through.
-*************** END
-*************** Alternate Iteration II               :noexport:
-Fun diversion, not sure if it is useful: maxrec modulo 25 will give us
-the remainder of items in the last set, so the last set downloaded
-will start at maxrec - (maxrec modulo 25) + 1.
-*************** END
+The number of the last record is stored conveniently in the "total"
+attribute of the resultset tag. getroot() puts us at the top of the
+document, into the resultset tag. get() returns the text associated
+with that attribute. We have to convert that string into an integer to
+use later.
 ** Combine Streams into Single Dataset
 First, download a page into memory, then parse it using lxml and
-Xpath. Many thanks to bob2 in #python. Download each result set, and
-parse using lxml. Use lxml to list each charity record, and
-iterchildren() and some magic to create a dictionary from the XML.
+Xpath.[fn:: bob2 in #python@irc.freenode.net helped with much of
+this.] Use lxml to list each charity record, and iterchildren() and
+some magic to create a dictionary from the XML. Non-ascii codes were
+being returned for some element text, and we have to encode everything
+as UTF-8 to make the csv module happy later.
 #+begin_src python
   results = []
   
   for rec in range(1, maxrec, 25):
-      print "Downloading dataset %d out of %d" % ((1+rec/25),maxrec/25)
+      # print "Downloading dataset %d out of %d" % ((1+rec/25),maxrec/25)
       data = urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec)) 
       doc = lxml.etree.parse(data)
       for charity in doc.findall('charity'):
           try:
               results.append(dict((item.tag, item.text.encode('utf-8')) for item in charity.iterchildren()))
           except:
-              print "Exception (probably utf-8 encoder)"
+              # print "Exception (probably utf-8 encoder)"
               results.append(dict((item.tag, item.text) for item in charity.iterchildren()))
       # with open('xml/%05d.xml' % rec,'wb') as f:
       #       f.write(data.read()) # save a copy, just in case
       data.close()
 #+end_src
 ** Download Each Charity's Fundraising Efficiency
+The XML files in the previous section gave us a lot of data, but there
+is much more data available on each charity's page on the Charity
+Navigator website. This part of the code scrapes that data, and
+doesn't technically require API access to do. Again, we have to be
+careful about character encoding.
+
+The way we scrape each bit of data is to first search for the data key
+text on the webpage (for example "Fundraising Efficiency"). Then, the
+next cell in the table usually holds that bit of data, so we walk up
+the tree to the parent (the cell holding the data key) and over to the
+next sibling (the cell holding the data or value). We grab the data
+and add it to the dictionary.
 #+begin_src python
   for charity in results:
-      print "Downloading efficiency for organization " + charity['orgid'] + " (%d out of %d)" % (charity+1,len(results))
-      doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600))
+      # print "Downloading efficiency for organization " + charity['orgid'] + " (%d out of %d)" % (charity+1,len(results))
+      doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600)) # why does this have to be compressed to one line?
       for element in doc.xpath('//div/table/tr/td/a'):
           if element.text=='Fundraising Efficiency':
               try:
                   rating = element.getparent().getnext().text.encode('utf-8')
               except:
-                  print "Exception (probably utf-8 encoder)"
+                  # print "Exception (probably utf-8 encoder)"
                   rating = element.getparent().getnext().text
       charity['efficiency'] = rating
       # with open('html/$05d.html' % charity['orgid'], 'wb') as f:
       #     f.write(data.read())
-      data.close()
 #+end_src
 ** Export CSV File
 We want to export using CSV for sharing and using in statistical
-software. csv.DictWriter class 
+software.
 #+begin_src python
   with open('output.csv','wb') as f:
-      fn = "orgid charity_name category efficiency".split()
+      fn = "orgid charity_name category efficiency".split() # this will be very annoying to maintain
       writer=csv.DictWriter(f, fieldnames=fn, extrasaction='ignore')
       headers={}
       for n in fn:
@@ -146,5 +135,3 @@ software. csv.DictWriter class
       for charity in results:
           writer.writerow(charity)
 #+end_src
-
-
