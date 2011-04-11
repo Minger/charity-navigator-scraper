@@ -1,4 +1,11 @@
-* Charity Navigator Scraper
-** Dependencies
-** Description
-This script will download the list of Charity Navigator rated charities using the Search API. The charity pages will then be scraped for specific financial ratings. The script could be extended to scrape more, or all, of the information available on each charity's page.
+# Charity Navigator Scraper #
+
+## Dependencies ##
+
+## Why a Scraper? ##
+
+## Description ##
+This script will download the list of Charity Navigator rated
+charities using the Search API. The charity pages will then be scraped
+for specific financial ratings. The script could be extended to scrape
+more, or all, of the information available on each charity's page.
