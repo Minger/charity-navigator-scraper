@@ -14,14 +14,34 @@
 #+LINK_HOME: 
 #+XSLT:
 * Charity Navigator Scraper
-
+- This project [[http://www.charitynavigator.org][*Powered by Charity Navigator*]].
+- Read about the [[http://www.charitynavigator.org/index.cfm?bay=content.view&cpid=809][Charity Navigator Search API]] and learn how to apply
+  for access. You will need your own API key to use this script.
+- Charity Navigator is not associated with this project or its authors
+  in any way.
+- Charity Navigator makes this data available as a public
+  service. Please do not abuse their servers.
 * Description
-This script will download the list of Charity Navigator rated
-charities using the Search API. The charity pages will then be scraped
-for specific financial ratings. The script could be extended to scrape
-more, or all, of the information available on each charity's page.
+This script uses the Search API to request an XML stream of all
+charities for which Charity Navigator (CN) provides data. These
+streams are returned with 25 records per call, so the maximum number
+of records is determined and the script makes new requests until all
+records have been returned. 
 
+These XML streams are parsed along the way, and the charity names,
+unique ID numbers, CN URLs, and many other data are stored. Then, the
+CN URL for each charity is used to load that charity's summary in
+memory, and the parsed HTML is used to store more data about each
+charity. The script could be extended to scrape all of the
+information available on each charity's page.
 * Dependencies
+- Python 2.6.5 or later
+- urllib2 and csv standard modules
+- [[http://www.lxml.de][lxml]]
 * Why a Scraper?
-* Credit
-#+html: <a href="http://www.charitynavigator.org"><img src="http://www.charitynavigator.org/_gfx_/partners/poweredbycn180x40.gif" alt="Powered by Charity Navigator" width="180" height="40"></a>
+Charity Navigator provides only a Search API at the moment. This is
+useful for republishing charity information on another website, but
+does not offer backend access to charity data. Access to these data
+are important for statistical analysis. The scraper locates and stores
+these data in a human- and machine-readable form to facilitate this
+analysis. 
