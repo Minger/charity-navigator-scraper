@@ -24,7 +24,7 @@ more, or all, of the information available on each charity's page.
 * Dependencies
 * Why a Scraper?
 * Credit
-#+begin_src html
+#+begin_html
   <a href="http://www.charitynavigator.org"><img src="http://www.charitynavigator.org/_gfx_/partners/poweredbycn180x40.gif" alt="Powered by Charity Navigator" width="180" height="40"></a>
-#+end_src
+#+end_html
 
