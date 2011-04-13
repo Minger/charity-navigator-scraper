@@ -3,22 +3,20 @@ import urllib2
 import lxml.etree
 import lxml.html
 import csv
+import re
 
 appid = input('Please enter your API key or app ID:')
 rec = 1
 
-data = urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec))
-doc = lxml.etree.parse(data)
-data.close()
-
+doc = lxml.etree.parse(urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec)))
+ 
 maxrec = int(doc.getroot().get('total'))
 
 results = []
 
 for rec in range(1, maxrec, 25):
     # print "Downloading dataset %d out of %d" % ((1+rec/25),maxrec/25)
-    data = urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec)) 
-    doc = lxml.etree.parse(data)
+    doc = lxml.etree.parse(urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec)))
     for charity in doc.findall('charity'):
         try:
             results.append(dict((item.tag, item.text.encode('utf-8')) for item in charity.iterchildren()))
@@ -27,24 +25,85 @@ for rec in range(1, maxrec, 25):
             results.append(dict((item.tag, item.text) for item in charity.iterchildren()))
     # with open('xml/%05d.xml' % rec,'wb') as f:
     #       f.write(data.read()) # save a copy, just in case
-    data.close()
 
 for charity in results:
-    # print "Downloading efficiency for organization " + charity['orgid'] + " (%d out of %d)" % (charity+1,len(results))
-    doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600)) # why does this have to be compressed to one line?
-    for element in doc.xpath('//div/table/tr/td/a'):
-        if element.text=='Fundraising Efficiency':
-            try:
-                rating = element.getparent().getnext().text.encode('utf-8')
-            except:
-                # print "Exception (probably utf-8 encoder)"
-                rating = element.getparent().getnext().text
-    charity['efficiency'] = rating
-    # with open('html/$05d.html' % charity['orgid'], 'wb') as f:
-    #     f.write(data.read())
+    doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600))
+    def rating(path):
+        """ Take xpath to tabular data and clean it up by removing paretheses.
+        """
+        return doc.xpath(path)[0].text.replace('(','').replace(')','').encode('utf-8')
+    def percent(path):
+        """ Take xpath to tabular data and clean it up by removing % sign and spaces.
+        """
+        return doc.xpath(path)[0].text.replace('%','').replace(' ','').encode('utf-8')
+    def dollar(path):
+        """ Take xpath to tabular data and clean it up by removing $ sign.
+        """
+        return doc.xpath(path)[0].text.replace('$','').encode('utf-8')
+
+    ## EIN (Federal ID)
+    charity['ein'] = re.search("\d{2}-\d{7}",doc.xpath("/html/body/div[@id='wrapper']/div[@id='wrapper2']/div[@id='bodywrap']/div[@id='cn_body']/div[@id='cn_body_inner']/div[@id='leftcontent']/div[@id='leftnavcontent']/div[1][@class='rating']/p[1]/a")[0].tail).group().encode('utf-8')
+    ## Overall Rating (Out of 70)
+    charity['overall_rating'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[2]/td[4]")
+    ## Efficiency Rating (Out of 40)
+    charity['efficiency_rating'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[9]/td[4]")
+    ## Capactiy Rating (Out of 30)
+    charity['capacity_rating'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[15]/td[4]")
+    ## Overall Rating (Stars)
+    charity['overall_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[1]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    ## Efficiency Rating (Stars)
+    charity['efficiency_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[8]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    ## Capacity Rating (Stars)
+    charity['capacity_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[14]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    ## Program Expenses (as a percentage of TFE)
+    charity['program_expense_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[4]/td[2]")
+    ## Administrative Expenses (as a percentage of TFE)
+    charity['admin_expense_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[5]/td[2]")
+    ## Fundraising Expenses  (as a percentage of TFE)
+    charity['fund_expense_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[6]/td[2]")
+    ## Fundraising Efficiency
+    charity['fund_efficiency'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[7]/td[2]")
+    ## Primary Revenue Growth
+    charity['primary_revenue_growth'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[11]/td[2]")
+    ## Program Expense Growth
+    charity['program_expense_growth'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[12]/td[2]")
+    ## Working Capital Ratio (Years)
+    charity['working_capital_ratio'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[13]/td[2]")
+    ## Primary Revenue
+    charity['primary_revenue'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[2]/td[2]")
+    ## Other Revenue
+    charity['other_revenue'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[3]/td[2]")
+    ## Total Revenue
+    charity['total_revenue'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[4]/td[2]/strong")
+    ## Program Expenses (absolute)
+    charity['program_expense'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[7]/td[2]")
+    ## Administrative Expenses
+    charity['admin_expense'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[8]/td[2]")
+    ## Fundraising Expenses (absolute)
+    charity['fund_expense'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[9]/td[2]")
+    ## Total Functional Expenses
+    charity['total_functional_expense'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[10]/td[2]/strong")
+    ## Payments to Affiliates
+    charity['affiliate_payments'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[12]/td[2]")
+    ## Budget Surplus
+    charity['budget_surplus'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[13]/td[2]")
+    ## Net Assets
+    charity['net_assets'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[15]/td[2]")
+    ## Leadership Compensation
+    charity['leader_comp'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[3][@class='rightalign']")
+    ## Leadership Compensation as % of Expenses
+    charity['leader_comp_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[4][@class='rightalign']")
+    ## Website
+    charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[2]")[0].get('href').encode('utf-8')
+    ## E-mail
+    charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
 
 with open('output.csv','wb') as f:
-    fn = "orgid charity_name category efficiency".split() # this will be very annoying to maintain
+    all_fields = results[0].keys()
+    ordered_fields = "orgid ein charity_name category city state".split()
+    unordered_fields = list(set(all_fields) - set(ordered_fields))
+    fn = ordered_fields
+    fn.extend(unordered_fields)
     writer=csv.DictWriter(f, fieldnames=fn, extrasaction='ignore')
     headers={}
     for n in fn:
