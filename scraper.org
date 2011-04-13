@@ -124,11 +124,11 @@ and add it to the dictionary.
       ## EIN (Federal ID)
       charity['ein'] = re.search("\d{2}-\d{7}",doc.xpath("/html/body/div[@id='wrapper']/div[@id='wrapper2']/div[@id='bodywrap']/div[@id='cn_body']/div[@id='cn_body_inner']/div[@id='leftcontent']/div[@id='leftnavcontent']/div[1][@class='rating']/p[1]/a")[0].tail).group().encode('utf-8')
       ## Overall Rating (Out of 70)
-      charity['overall_rating'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[2]/td[4]")
+      charity['overall_rating'] = rating("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[2]/td[4]")
       ## Efficiency Rating (Out of 40)
-      charity['efficiency_rating'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[9]/td[4]")
+      charity['efficiency_rating'] = rating("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[9]/td[4]")
       ## Capactiy Rating (Out of 30)
-      charity['capacity_rating'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[15]/td[4]")
+      charity['capacity_rating'] = rating("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[15]/td[4]")
       ## Overall Rating (Stars)
       charity['overall_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[1]/td[4]/img")[0].get('alt')).group().encode('utf-8')
       ## Efficiency Rating (Stars)
@@ -142,7 +142,7 @@ and add it to the dictionary.
       ## Fundraising Expenses  (as a percentage of TFE)
       charity['fund_expense_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[6]/td[2]")
       ## Fundraising Efficiency
-      charity['fund_efficiency'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[7]/td[2]")
+      charity['fund_efficiency'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[7]/td[2]")
       ## Primary Revenue Growth
       charity['primary_revenue_growth'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[11]/td[2]")
       ## Program Expense Growth
