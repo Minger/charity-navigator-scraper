@@ -40,7 +40,7 @@ for i, charity in enumerate(results):
     def dollar(path):
         """ Take xpath to tabular data and clean it up by removing $ sign.
         """
-        return doc.xpath(path)[0].text.replace('$','').encode('utf-8')
+        return doc.xpath(path)[0].text.replace('$','').replace(',','').encode('utf-8')
 
     ## EIN (Federal ID)
     charity['ein'] = re.search("\d{2}-\d{7}",doc.xpath("/html/body/div[@id='wrapper']/div[@id='wrapper2']/div[@id='bodywrap']/div[@id='cn_body']/div[@id='cn_body_inner']/div[@id='leftcontent']/div[@id='leftnavcontent']/div[1][@class='rating']/p[1]/a")[0].tail).group().encode('utf-8')
@@ -100,15 +100,25 @@ for i, charity in enumerate(results):
     ## Net Assets
     charity['net_assets'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[2]/div[@class='rating']/table/tr[15]/td[2]")
     ## Leadership Compensation
-    charity['leader_comp'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[3][@class='rightalign']")
+    comp = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[3][@class='rightalign']")
+    if comp.strip() == 'Not compensated':
+        charity['leader_comp'] = 0
+    elif comp.strip() == 'None reported':
+        charity['leader_comp'] = ''
+    else:
+        charity['leader_comp'] = comp
     ## Leadership Compensation as % of Expenses
-    charity['leader_comp_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[4][@class='rightalign']")
+    cp = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[4][@class='rightalign']")
+    if cp != '--':
+        charity['leader_comp_percent'] = cp
+    else:
+        charity['leader_comp_percent'] = ''
     ## Website and E-mail
     for link in doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a"):
         if link.text == 'Visit Web Site':
             charity['website'] = link.get('href').encode('utf-8')
         if link.text == 'Contact Email':
-            charity['email'] = link.get('href').encode('utf-8')
+            charity['email'] = link.get('href').replace('mailto:','').encode('utf-8')
 
 with open('output.csv','wb') as f:
     all_fields = results[0].keys()
