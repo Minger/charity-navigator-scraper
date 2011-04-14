@@ -28,11 +28,17 @@
 * Tasks
 ** TODO Add other data from charity [[http://www.charitynavigator.org/index.cfm?bay=search.summary&orgid=12123][summary pages]]
 ** TODO Look into cookie handling to log in and collect historical data
-** TODO Add arguments to script to turn on verbosity (print lines in each loop) and persistence (saving the XML/HTML docs to disk)
+** TODO Add arguments to script 
+- To turn on verbosity (print lines in each loop)
+- For persistence (saving the XML/HTML docs to disk)
+  - So I do not constantly hit the XML over and over when I encounter
+    a bug in the scraper
+  - Could write one row to the CSV file at a time
 ** TODO Work on error handling
 ** TODO Figure out a better way to do CSV header row
 ** TODO Replace some regexp's with s.replace('this','that') method
 ** TODO Work on exporting all new data to CSV
+** TODO Add command line arguments to save searches
 * Script
 ** Setup
 We'll use [[http://www.lxml.de][lxml]] to navigate both the XML and HTML documents and [[http://personalpages.tds.net/~kent37/kk/00010.html][urllib2]]
