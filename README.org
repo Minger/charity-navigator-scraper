@@ -15,8 +15,8 @@
 #+XSLT:
 
 * Charity Navigator Scraper
-- This script is free software. It is licensed under the GNU General
-  Public License. 
+- This script is free software. It is licensed under the [[http://www.gnu.org/licenses/gpl.html][GNU General
+  Public License]]. 
 - The data is a public service of [[http://www.charitynavigator.org][Charity Navigator]], but the data is
   likely owned by individual charities. Charity Navigator collects
   this data. We have simply recollected in a usable form.
