@@ -109,10 +109,12 @@ for i, charity in enumerate(results):
         charity['leader_comp'] = comp
     ## Leadership Compensation as % of Expenses
     cp = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[4][@class='rightalign']")
-    if cp != '--':
-        charity['leader_comp_percent'] = cp
-    else:
+    if comp.strip() == 'Not compensated':
+        charity['leader_comp_percent'] = 0
+    elif comp.strip() == 'None reported':
         charity['leader_comp_percent'] = ''
+    else:
+        charity['leader_comp_percent'] = cp
     ## Website and E-mail
     for link in doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a"):
         if link.text == 'Visit Web Site':
