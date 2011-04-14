@@ -28,7 +28,7 @@ for rec in range(1, maxrec, 25):
 
 for i, charity in enumerate(results):
     doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600))
-    print "Processing charity %s out of %s, id: %s" % (charity, len(results), charity['orgid'])
+    print "Processing charity %s out of %s, id: %s" % (i, len(results), charity['orgid'])
     def rating(path):
         """ Take xpath to tabular data and clean it up by removing paretheses.
         """
@@ -51,11 +51,20 @@ for i, charity in enumerate(results):
     ## Capactiy Rating (Out of 30)
     charity['capacity_rating'] = rating("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[15]/td[4]")
     ## Overall Rating (Stars)
-    charity['overall_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[1]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    try:
+        charity['overall_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[1]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    except:
+        charity['overall_rating_star'] = 0
     ## Efficiency Rating (Stars)
-    charity['efficiency_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[8]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    try:
+        charity['efficiency_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[8]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    except:
+        charity['efficiency_rating_star'] = 0
     ## Capacity Rating (Stars)
-    charity['capacity_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[14]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    try:
+        charity['capacity_rating_star'] = re.match('\d',doc.xpath("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[14]/td[4]/img")[0].get('alt')).group().encode('utf-8')
+    except:
+        charity['capacity_rating_star'] = 0
     ## Program Expenses (as a percentage of TFE)
     charity['program_expense_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[1][@class='leftcolumn']/div[1]/div[@class='rating']/table/tr[4]/td[2]")
     ## Administrative Expenses (as a percentage of TFE)
