@@ -26,8 +26,9 @@ for rec in range(1, maxrec, 25):
     # with open('xml/%05d.xml' % rec,'wb') as f:
     #       f.write(data.read()) # save a copy, just in case
 
-for charity in results:
+for i, charity in enumerate(results):
     doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600))
+    print "Processing charity %s out of %s, id: %s" % (charity, len(results), charity['orgid']
     def rating(path):
         """ Take xpath to tabular data and clean it up by removing paretheses.
         """
