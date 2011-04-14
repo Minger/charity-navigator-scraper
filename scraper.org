@@ -40,6 +40,17 @@
 ** TODO Work on exporting all new data to CSV
 ** TODO Add command line arguments to save searches
 * Script
+** License
+#+begin_src python
+  '''
+  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  '''
+#+end_src
+
 ** Setup
 We'll use [[http://www.lxml.de][lxml]] to navigate both the XML and HTML documents and [[http://personalpages.tds.net/~kent37/kk/00010.html][urllib2]]
 to fetch them. The [[http://docs.python.org/library/csv.html][csv]] module is used to store the generated Python

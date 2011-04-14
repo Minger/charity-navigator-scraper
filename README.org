@@ -13,7 +13,13 @@
 #+LINK_UP:   
 #+LINK_HOME: 
 #+XSLT:
+
 * Charity Navigator Scraper
+- This script is free software. It is licensed under the GNU General
+  Public License. 
+- The data is a public service of [[http://www.charitynavigator.org][Charity Navigator]], but the data is
+  likely owned by individual charities. Charity Navigator collects
+  this data. We have simply recollected in a usable form.
 - Read about the [[http://www.charitynavigator.org/index.cfm?bay=content.view&cpid=809][Charity Navigator Search API]] and learn how to apply
   for access. You will need your own API key to use this script.
 - Charity Navigator is not associated with this project or its authors
