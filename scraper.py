@@ -103,16 +103,12 @@ for i, charity in enumerate(results):
     charity['leader_comp'] = dollar("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[3][@class='rightalign']")
     ## Leadership Compensation as % of Expenses
     charity['leader_comp_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[4][@class='rightalign']")
-    ## Website
-    try:
-        charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[2]")[0].get('href').encode('utf-8')
-    except:
-        charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[3]/a[2]")[0].get('href').encode('utf-8')
-    ## E-mail
-    try:
-        charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
-    except:
-        charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[3]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
+    ## Website and E-mail
+    for link in doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a"):
+        if link.text == 'Visit Web Site':
+            charity['website'] = link.get('href').encode('utf-8')
+        if link.text == 'Contact Email':
+            charity['email'] = link.get('href').encode('utf-8')
 
 with open('output.csv','wb') as f:
     all_fields = results[0].keys()
