@@ -109,7 +109,10 @@ for i, charity in enumerate(results):
     except:
         charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[3]/a[2]")[0].get('href').encode('utf-8')
     ## E-mail
-    charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
+    try:
+        charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
+    except:
+        charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[3]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
 
 with open('output.csv','wb') as f:
     all_fields = results[0].keys()
