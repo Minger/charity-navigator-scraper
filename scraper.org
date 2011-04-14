@@ -57,7 +57,7 @@ will be stored in variables. This gives me an excuse to use string
 formatting (I'm easily amused) and makes the code prettier (I'm easily
 distracted).
 #+begin_src python
-  appid = input('Please enter your API key or app ID:')
+  appid = input('Please enter your API key or app ID: ')
   rec = 1
 #+end_src
 ** Determine Maximum Records
@@ -190,7 +190,10 @@ and add it to the dictionary.
       ## Leadership Compensation as % of Expenses
       charity['leader_comp_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[4][@class='rightalign']")
       ## Website
-      charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[2]")[0].get('href').encode('utf-8')
+      try:
+          charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[2]")[0].get('href').encode('utf-8')
+      except:
+          charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[3]/a[2]")[0].get('href').encode('utf-8')
       ## E-mail
       charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
 #+end_src

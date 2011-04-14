@@ -5,7 +5,7 @@ import lxml.html
 import csv
 import re
 
-appid = input('Please enter your API key or app ID:')
+appid = input('Please enter your API key or app ID: ')
 rec = 1
 
 doc = lxml.etree.parse(urllib2.urlopen("http://www.charitynavigator.org/feeds/search4/?appid=%d&fromrec=%d" % (appid, rec)))
@@ -104,7 +104,10 @@ for i, charity in enumerate(results):
     ## Leadership Compensation as % of Expenses
     charity['leader_comp_percent'] = percent("//div[@id='summary']/div[2][@class='summarywrap']/div[3][@class='bottom']/div[2][@class='leadership']/table/tr[2]/td[4][@class='rightalign']")
     ## Website
-    charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[2]")[0].get('href').encode('utf-8')
+    try:
+        charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[2]")[0].get('href').encode('utf-8')
+    except:
+        charity['website'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[3]/a[2]")[0].get('href').encode('utf-8')
     ## E-mail
     charity['e-mail'] = doc.xpath("//div[@id='leftnavcontent']/div[1][@class='rating']/p[2]/a[1]")[0].get('href').replace('mailto:','').encode('utf-8')
 
