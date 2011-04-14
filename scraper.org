@@ -106,8 +106,9 @@ the tree to the parent (the cell holding the data key) and over to the
 next sibling (the cell holding the data or value). We grab the data
 and add it to the dictionary.
 #+begin_src python
-  for charity in results:
+  for charity in enumerate(results):
       doc = lxml.html.parse(urllib2.urlopen(charity['url'],timeout=600))
+      print "Processing charity %s out of %s, id: %s" % (charity, len(results), charity['orgid']
       def rating(path):
           """ Take xpath to tabular data and clean it up by removing paretheses.
           """
